@@ -10,6 +10,7 @@ contract ExpenseSplitter {
     error ExpenseSplitter__NoMembers();
     error ExpenseSplitter__NoBalance();
     error ExpenseSplitter__TransferFailed();
+    error ExpenseSplitter__YouHaveNoContribution();
 
     /* Type declarations */
 
@@ -24,6 +25,7 @@ contract ExpenseSplitter {
     event NewMember(address);
     event NewContribution(address);
     event FundsSplit(uint256, uint256);
+    event ClaimDone(address);
 
     /* Constructor */
     constructor() {
@@ -101,13 +103,29 @@ contract ExpenseSplitter {
         }
 
         // Pay the owner the remainder
-        (bool ownerTransfer,) = payable(i_owner).call{value: remainder}("");
-        if (!ownerTransfer) {
+        (bool success,) = payable(i_owner).call{value: remainder}("");
+        if (!success) {
             revert ExpenseSplitter__TransferFailed();
         }
 
         // Emit event
         emit FundsSplit(share, remainder);
+    }
+
+    function claim() external OnlyMembers {
+        // Check if member has funds
+        if (s_claimableShare[msg.sender] == 0) {
+            revert ExpenseSplitter__YouHaveNoContribution();
+        }
+
+        // Pay them their amount
+        (bool success,) = payable(msg.sender).call{value: s_claimableShare[msg.sender]}("");
+        if (!success) {
+            revert ExpenseSplitter__TransferFailed();
+        }
+
+        // Emit event
+        emit ClaimDone(msg.sender);
     }
 
     /* Getter functions */
