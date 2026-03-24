@@ -23,7 +23,7 @@ contract ExpenseSplitter {
 
     /* Events */
     event NewMember(address);
-    event NewContribution(address);
+    event NewContribution(uint256, address);
     event FundsSplit(uint256, uint256);
     event ClaimDone(address);
 
@@ -72,11 +72,8 @@ contract ExpenseSplitter {
             revert ExpenseSplitter__NotEnoughEth();
         }
 
-        // Update the senders balance
-        s_claimableShare[msg.sender] += msg.value;
-
         // Emit event
-        emit NewContribution(msg.sender);
+        emit NewContribution(msg.value, msg.sender);
     }
 
     function splitFunds() external OnlyOwner {
@@ -98,7 +95,7 @@ contract ExpenseSplitter {
         uint256 remainder = balance % members;
 
         // Pay the share to each member
-        for (uint256 i = 0; i < s_members.length; i++) {
+        for (uint256 i = 0; i < members; i++) {
             s_claimableShare[s_members[i]] += share;
         }
 
