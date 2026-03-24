@@ -24,8 +24,9 @@ contract ExpenseSplitter {
 
     /* Modifiers */
     modifier OnlyOwner() {
-        require(msg.sender == i_owner);
-        revert ExpenseSplitter__YouAreNotTheOwner();
+        if(msg.sender != i_owner){
+            revert ExpenseSplitter__YouAreNotTheOwner();
+        }
         _;
     }
 
