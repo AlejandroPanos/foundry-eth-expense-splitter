@@ -118,8 +118,12 @@ contract ExpenseSplitter {
             revert ExpenseSplitter__YouHaveNoContribution();
         }
 
+        // Run effects
+        uint256 amount = s_claimableShare[msg.sender];
+        s_claimableShare[msg.sender] = 0;
+
         // Pay them their amount
-        (bool success,) = payable(msg.sender).call{value: s_claimableShare[msg.sender]}("");
+        (bool success,) = payable(msg.sender).call{value: amount}("");
         if (!success) {
             revert ExpenseSplitter__TransferFailed();
         }
@@ -130,5 +134,4 @@ contract ExpenseSplitter {
 
     /* Getter functions */
 
-    /* Receive & Fallback */
 }
