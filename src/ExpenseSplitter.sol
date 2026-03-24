@@ -97,10 +97,7 @@ contract ExpenseSplitter {
 
         // Pay the share to each member
         for (uint256 i = 0; i < s_members.length; i++) {
-            (bool memberTransfer,) = payable(s_members[i]).call{value: share}("");
-            if (!memberTransfer) {
-                revert ExpenseSplitter__TransferFailed();
-            }
+            s_claimableShare[s_members[i]] += share;
         }
 
         // Pay the owner the remainder
