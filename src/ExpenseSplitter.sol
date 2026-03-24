@@ -7,6 +7,9 @@ contract ExpenseSplitter {
     error ExpenseSplitter__UserIsAMemberAlready();
     error ExpenseSplitter__YouAreNotAMember();
     error ExpenseSplitter__NotEnoughEth();
+    error ExpenseSplitter__NoMembers();
+    error ExpenseSplitter__NoBalance();
+    error ExpenseSplitter__TransferFailed();
 
     /* Type declarations */
 
@@ -20,6 +23,7 @@ contract ExpenseSplitter {
     /* Events */
     event NewMember(address);
     event NewContribution(address);
+    event FundsSplit(uint256, uint256);
 
     /* Constructor */
     constructor() {
@@ -71,6 +75,42 @@ contract ExpenseSplitter {
 
         // Emit event
         emit NewContribution(msg.sender);
+    }
+
+    function splitFunds() external OnlyOwner {
+        // Check if there are no members or balance is 0
+        if (s_members.length == 0) {
+            revert ExpenseSplitter__NoMembers();
+        }
+
+        if (address(this).balance == 0) {
+            revert ExpenseSplitter__NoBalance();
+        }
+
+        // Check num. members and balance
+        uint256 members = s_members.length;
+        uint256 balance = address(this).balance;
+
+        // Split the money equally
+        uint256 share = balance / members;
+        uint256 remainder = balance % members;
+
+        // Pay the share to each member
+        for (uint256 i = 0; i < s_members.length; i++) {
+            (bool memberTransfer,) = payable(s_members[i]).call{value: share}("");
+            if (!memberTransfer) {
+                revert ExpenseSplitter__TransferFailed();
+            }
+        }
+
+        // Pay the owner the remainder
+        (bool ownerTransfer,) = payable(i_owner).call{value: remainder}("");
+        if (!ownerTransfer) {
+            revert ExpenseSplitter__TransferFailed();
+        }
+
+        // Emit event
+        emit FundsSplit(share, remainder);
     }
 
     /* Getter functions */
