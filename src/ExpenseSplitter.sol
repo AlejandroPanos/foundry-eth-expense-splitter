@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 contract ExpenseSplitter {
+
     /* Errors */
 
     /* Type declarations */
@@ -10,6 +11,7 @@ contract ExpenseSplitter {
     address public immutable i_owner;
     mapping(address => bool) s_isMember;
     mapping(address => uint256) s_claimableShare;
+    address[] s_members;
 
     /* Events */
 
@@ -23,4 +25,5 @@ contract ExpenseSplitter {
     /* Getter functions */
 
     /* Receive & Fallback */
+
 }
