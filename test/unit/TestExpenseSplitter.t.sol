@@ -12,6 +12,7 @@ contract TestExpenseSplitter is Test {
     /* Errors */
     error ExpenseSplitter__YouAreNotTheOwner();
     error ExpenseSplitter__YouAreNotAMember();
+    error ExpenseSplitter__NotEnoughEth();
     error ExpenseSplitter__YouHaveNoContribution();
 
     /* State variables */
@@ -19,6 +20,7 @@ contract TestExpenseSplitter is Test {
     address MEMBER = makeAddr("member");
     uint256 constant FUNDS = 10 ether;
     uint256 constant SEND_VALUE = 0.1 ether;
+    uint256 constant LESS_THAN_MIN = 0.001 ether;
 
     /* Events */
     event NewMember(address);
@@ -54,6 +56,20 @@ contract TestExpenseSplitter is Test {
 
         // Act / Assert
         expenseSplitter.addMember(MEMBER);
+    }
+
+    function testRevertsIfContributionIsLessThanMinimum() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        expenseSplitter.addMember(USER);
+
+        // Act
+        vm.prank(USER);
+        vm.expectRevert(ExpenseSplitter__NotEnoughEth.selector);
+
+        // Assert
+        expenseSplitter.contribute{value: LESS_THAN_MIN}();
     }
 
     function testNonMemberCannotContribute() public {
