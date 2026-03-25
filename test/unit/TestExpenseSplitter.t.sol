@@ -16,6 +16,9 @@ contract TestExpenseSplitter is Test {
     address USER = makeAddr("user");
     address MEMBER = makeAddr("member");
 
+    /* Events */
+    event NewMember(address);
+
     /* Set up function */
     function setUp() external {
         DeployExpenseSplitter deployExpenseSplitter = new DeployExpenseSplitter();
@@ -25,6 +28,17 @@ contract TestExpenseSplitter is Test {
     /* Testing functions */
     function testOwnerIsMsgSender() public view {
         assertEq(expenseSplitter.getOwner(), msg.sender);
+    }
+
+    function testOwnerCanAddMembers() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        vm.expectEmit();
+        emit NewMember(MEMBER);
+
+        // Act / Assert
+        expenseSplitter.addMember(MEMBER);
     }
 
     function testOnlyOwnerCanAddMembers() public {
