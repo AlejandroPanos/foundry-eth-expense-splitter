@@ -169,4 +169,18 @@ contract TestExpenseSplitter is Test {
         // Assert
         expenseSplitter.splitFunds();
     }
+
+    function testSplitFundsRevertsIfNoBalanceInContract() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        expenseSplitter.addMember(USER);
+
+        // Act
+        vm.prank(owner);
+        vm.expectRevert(ExpenseSplitter__NoBalance.selector);
+
+        // Assert
+        expenseSplitter.splitFunds();
+    }
 }
