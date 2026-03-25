@@ -16,6 +16,8 @@ contract TestExpenseSplitter is Test {
     /* State variables */
     address USER = makeAddr("user");
     address MEMBER = makeAddr("member");
+    uint256 constant FUNDS = 10 ether;
+    uint256 constant SEND_VALUE = 0.1 ether;
 
     /* Events */
     event NewMember(address);
@@ -24,6 +26,7 @@ contract TestExpenseSplitter is Test {
     function setUp() external {
         DeployExpenseSplitter deployExpenseSplitter = new DeployExpenseSplitter();
         expenseSplitter = deployExpenseSplitter.run();
+        vm.deal(USER, FUNDS);
     }
 
     /* Testing functions */
@@ -58,5 +61,20 @@ contract TestExpenseSplitter is Test {
 
         // Act / Asser
         expenseSplitter.contribute();
+    }
+
+    function testContributingIncreasesContractBalance() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        expenseSplitter.addMember(USER);
+
+        // Act
+        vm.prank(USER);
+        expenseSplitter.contribute{value: SEND_VALUE}();
+        uint256 contractBalance = address(expenseSplitter).balance;
+
+        // Assert
+        assertEq(contractBalance, SEND_VALUE);
     }
 }
