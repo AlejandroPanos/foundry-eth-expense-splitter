@@ -141,4 +141,8 @@ contract ExpenseSplitter {
     function getClaimableShare(address _member) external view returns (uint256) {
         return s_claimableShare[_member];
     }
+
+    function getIsMember(address _member) external view returns (bool) {
+        return s_isMember[_member];
+    }
 }
