@@ -12,6 +12,7 @@ contract TestExpenseSplitter is Test {
     /* Errors */
     error ExpenseSplitter__YouAreNotTheOwner();
     error ExpenseSplitter__YouAreNotAMember();
+    error ExpenseSplitter__YouHaveNoContribution();
 
     /* State variables */
     address USER = makeAddr("user");
@@ -123,5 +124,19 @@ contract TestExpenseSplitter is Test {
 
         // Assert
         assert(claimableBalance == 0);
+    }
+
+    function testRevertsIfMemberHasNoContributionAndClaims() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        expenseSplitter.addMember(USER);
+
+        // Act
+        vm.prank(USER);
+        vm.expectRevert(ExpenseSplitter__YouHaveNoContribution.selector);
+
+        // Assert
+        expenseSplitter.claim();
     }
 }
