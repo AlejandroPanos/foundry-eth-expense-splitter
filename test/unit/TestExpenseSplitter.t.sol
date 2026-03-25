@@ -6,7 +6,6 @@ import {ExpenseSplitter} from "src/ExpenseSplitter.sol";
 import {DeployExpenseSplitter} from "script/DeployExpenseSplitter.s.sol";
 
 contract TestExpenseSplitter is Test {
-
     /* Instantiate a new contract */
     ExpenseSplitter expenseSplitter;
 
@@ -22,8 +21,7 @@ contract TestExpenseSplitter is Test {
     }
 
     /* Testing functions */
-    function testOwnerIsMsgSender() public {
-        
+    function testOwnerIsMsgSender() public view {
+        assertEq(expenseSplitter.getOwner(), msg.sender);
     }
-
 }
