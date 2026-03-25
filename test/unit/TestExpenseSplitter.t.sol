@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {ExpenseSplitter} from "src/ExpenseSplitter.sol";
 import {DeployExpenseSplitter} from "script/DeployExpenseSplitter.s.sol";
 
@@ -10,9 +10,11 @@ contract TestExpenseSplitter is Test {
     ExpenseSplitter expenseSplitter;
 
     /* Errors */
+    error ExpenseSplitter__YouAreNotTheOwner();
 
     /* State variables */
     address USER = makeAddr("user");
+    address MEMBER = makeAddr("member");
 
     /* Set up function */
     function setUp() external {
@@ -23,5 +25,14 @@ contract TestExpenseSplitter is Test {
     /* Testing functions */
     function testOwnerIsMsgSender() public view {
         assertEq(expenseSplitter.getOwner(), msg.sender);
+    }
+
+    function testOnlyOwnerCanAddMembers() public {
+        // Arrange
+        vm.prank(USER);
+        vm.expectRevert(ExpenseSplitter__YouAreNotTheOwner.selector);
+
+        // Act / Assert
+        expenseSplitter.addMember(MEMBER);
     }
 }
