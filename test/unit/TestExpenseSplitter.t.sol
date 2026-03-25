@@ -13,6 +13,8 @@ contract TestExpenseSplitter is Test {
     error ExpenseSplitter__YouAreNotTheOwner();
     error ExpenseSplitter__YouAreNotAMember();
     error ExpenseSplitter__NotEnoughEth();
+    error ExpenseSplitter__NoMembers();
+    error ExpenseSplitter__NoBalance();
     error ExpenseSplitter__YouHaveNoContribution();
 
     /* State variables */
@@ -154,5 +156,17 @@ contract TestExpenseSplitter is Test {
 
         // Assert
         expenseSplitter.claim();
+    }
+
+    function testSplitFundsRevertsIfNoMembersAdded() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+
+        // Act
+        vm.prank(owner);
+        vm.expectRevert(ExpenseSplitter__NoMembers.selector);
+
+        // Assert
+        expenseSplitter.splitFunds();
     }
 }
