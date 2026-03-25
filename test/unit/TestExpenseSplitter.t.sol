@@ -103,4 +103,25 @@ contract TestExpenseSplitter is Test {
         assertEq(expenseSplitter.getClaimableShare(USER), expectedShare);
         assertEq(expenseSplitter.getClaimableShare(MEMBER), expectedShare);
     }
+
+    function testMemberClaimsAndBalanceResetsToZero() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.prank(owner);
+        expenseSplitter.addMember(USER);
+
+        vm.prank(USER);
+        expenseSplitter.contribute{value: SEND_VALUE}();
+
+        vm.prank(owner);
+        expenseSplitter.splitFunds();
+
+        // Act
+        vm.prank(USER);
+        expenseSplitter.claim();
+        uint256 claimableBalance = expenseSplitter.getClaimableShare(USER);
+
+        // Assert
+        assert(claimableBalance == 0);
+    }
 }
