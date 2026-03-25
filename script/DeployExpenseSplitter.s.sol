@@ -6,7 +6,7 @@ import {ExpenseSplitter} from "src/ExpenseSplitter.sol";
 
 contract DeployExpenseSplitter is Script {
     /* Functions */
-    function run() public returns (ExpenseSplitter) {
+    function run() external returns (ExpenseSplitter) {
         vm.startBroadcast();
         ExpenseSplitter expenseSplitter = new ExpenseSplitter();
         vm.stopBroadcast();
