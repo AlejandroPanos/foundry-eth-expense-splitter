@@ -27,6 +27,7 @@ contract TestExpenseSplitter is Test {
         DeployExpenseSplitter deployExpenseSplitter = new DeployExpenseSplitter();
         expenseSplitter = deployExpenseSplitter.run();
         vm.deal(USER, FUNDS);
+        vm.deal(MEMBER, FUNDS);
     }
 
     /* Testing functions */
@@ -76,5 +77,30 @@ contract TestExpenseSplitter is Test {
 
         // Assert
         assertEq(contractBalance, SEND_VALUE);
+    }
+
+    function testSplitFundsGetsRightAmount() public {
+        // Arrange
+        address owner = expenseSplitter.getOwner();
+        vm.startPrank(owner);
+        expenseSplitter.addMember(USER);
+        expenseSplitter.addMember(MEMBER);
+        vm.stopPrank();
+
+        // Act
+        vm.prank(USER);
+        expenseSplitter.contribute{value: SEND_VALUE}();
+
+        vm.prank(MEMBER);
+        expenseSplitter.contribute{value: SEND_VALUE}();
+
+        vm.prank(owner);
+        expenseSplitter.splitFunds();
+
+        uint256 expectedShare = (SEND_VALUE * 2) / 2;
+
+        // Assert
+        assertEq(expenseSplitter.getClaimableShare(USER), expectedShare);
+        assertEq(expenseSplitter.getClaimableShare(MEMBER), expectedShare);
     }
 }

@@ -133,4 +133,12 @@ contract ExpenseSplitter {
     function getOwner() external view returns (address) {
         return i_owner;
     }
+
+    function getMembersCount() external view returns (uint256) {
+        return s_members.length;
+    }
+
+    function getClaimableShare(address _member) external view returns (uint256) {
+        return s_claimableShare[_member];
+    }
 }
