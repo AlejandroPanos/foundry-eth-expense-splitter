@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+/**
+ * @title ExpenseSplitter
+ * @author Alejandro Paños
+ * @notice A group expense splitting contract. The owner adds members who
+ * contribute ETH to a shared pool. The owner can split the accumulated
+ * balance equally among all members at any time, and members can claim
+ * their allocated share whenever they choose.
+ * @dev Uses a pull payment pattern for fund distribution — members claim
+ * their share rather than receiving it automatically, reducing reentrancy risk.
+ * @dev Integer division remainder from the split is sent to the owner.
+ */
 contract ExpenseSplitter {
     /* Errors */
     error ExpenseSplitter__YouAreNotTheOwner();
