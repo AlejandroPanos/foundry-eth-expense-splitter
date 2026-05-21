@@ -44,6 +44,13 @@ contract ExpenseSplitter {
     }
 
     /* Modifiers */
+    /**
+     * @notice Restricts function access to the contract owner.
+     * @dev Reverts with ExpenseSplitter__YouAreNotTheOwner if the caller
+     * is not the owner.
+     * @dev Could also use the OpenZeppelin library and import the Ownable contract 
+     * instead of creating the modifier ourselves.
+     */
     modifier OnlyOwner() {
         if (msg.sender != i_owner) {
             revert ExpenseSplitter__YouAreNotTheOwner();
@@ -51,6 +58,11 @@ contract ExpenseSplitter {
         _;
     }
 
+    /**
+     * @notice Restricts function access to registered members.
+     * @dev Reverts with ExpenseSplitter__YouAreNotAMember if the caller
+     * is not in the members mapping.
+     */
     modifier OnlyMembers() {
         if (!s_isMember[msg.sender]) {
             revert ExpenseSplitter__YouAreNotAMember();
