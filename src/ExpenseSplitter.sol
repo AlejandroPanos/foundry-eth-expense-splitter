@@ -48,7 +48,7 @@ contract ExpenseSplitter {
      * @notice Restricts function access to the contract owner.
      * @dev Reverts with ExpenseSplitter__YouAreNotTheOwner if the caller
      * is not the owner.
-     * @dev Could also use the OpenZeppelin library and import the Ownable contract 
+     * @dev Could also use the OpenZeppelin library and import the Ownable contract
      * instead of creating the modifier ourselves.
      */
     modifier OnlyOwner() {
@@ -72,8 +72,11 @@ contract ExpenseSplitter {
 
     /* Functions */
     /**
-     * @dev Function follow CEI pattern.
-     * @param _member is the address of the member to add.
+     * @notice Adds a new member to the expense group.
+     * @param _member The address to add as a member.
+     * @dev Only callable by the owner.
+     * @dev Reverts if the address is already a member.
+     * @dev Follows CEI — state is updated before emitting the event.
      */
     function addMember(address _member) external OnlyOwner {
         // Check if user is a member already
@@ -89,6 +92,13 @@ contract ExpenseSplitter {
         emit NewMember(_member);
     }
 
+    /**
+     * @notice Allows a member to contribute ETH to the shared pool.
+     * @dev Only callable by registered members.
+     * @dev The ETH sent must be at least MIN_AMOUNT (0.01 ether).
+     * @dev Contributed funds accumulate in the contract until splitFunds()
+     * is called by the owner.
+     */
     function contribute() external payable OnlyMembers {
         // Check sender sends minimum amount
         if (msg.value < MIN_AMOUNT) {
@@ -99,6 +109,15 @@ contract ExpenseSplitter {
         emit NewContribution(msg.value, msg.sender);
     }
 
+    /**
+     * @notice Splits the contract balance equally among all members and
+     * allocates each member's share for claiming.
+     * @dev Only callable by the owner.
+     * @dev Uses integer division — any remainder is sent directly to the owner.
+     * @dev Allocated shares are stored in s_claimableShare and must be
+     * claimed individually by each member via claim().
+     * @dev Reverts if there are no members or the contract balance is zero.
+     */
     function splitFunds() external OnlyOwner {
         // Check if there are no members or balance is 0
         if (s_members.length == 0) {
@@ -132,6 +151,13 @@ contract ExpenseSplitter {
         emit FundsSplit(share, remainder);
     }
 
+    /**
+     * @notice Allows a member to withdraw their allocated share.
+     * @dev Only callable by registered members.
+     * @dev Reverts if the caller has no claimable balance.
+     * @dev Follows CEI — the claimable balance is zeroed before the
+     * ETH transfer to prevent reentrancy.
+     */
     function claim() external OnlyMembers {
         // Check if member has funds
         if (s_claimableShare[msg.sender] == 0) {
