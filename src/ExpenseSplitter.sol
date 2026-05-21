@@ -179,18 +179,36 @@ contract ExpenseSplitter {
     }
 
     /* Getter functions */
+    /**
+     * @notice Returns the address of the contract owner.
+     * @return address The immutable owner address set at deployment.
+     */
     function getOwner() external view returns (address) {
         return i_owner;
     }
 
+    /**
+     * @notice Returns the total number of registered members.
+     * @return uint256 The length of the members array.
+     */
     function getMembersCount() external view returns (uint256) {
         return s_members.length;
     }
 
+    /**
+     * @notice Returns the claimable ETH balance allocated to a member.
+     * @param _member The address of the member to check.
+     * @return uint256 The claimable amount in wei.
+     */
     function getClaimableShare(address _member) external view returns (uint256) {
         return s_claimableShare[_member];
     }
 
+    /**
+     * @notice Returns whether an address is a registered member.
+     * @param _member The address to check.
+     * @return bool True if the address is a member, false otherwise.
+     */
     function getIsMember(address _member) external view returns (bool) {
         return s_isMember[_member];
     }
